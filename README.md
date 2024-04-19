@@ -5,7 +5,7 @@
 - [x] Automates NuGet package availability checks, ensuring packages exist and are indexed on [nuget.org](https://nuget.org).
 - [x] Supports multiple verification attempts and can suspend CI/CD workflows until the package is published.
 
-## Usage
+## How to use
 
 :white_check_mark: To quickly check if the package exists and is available on NuGet, please add the following job:
 
@@ -35,11 +35,15 @@ so 10 retries are usually enough time between publishing and when the package is
 
 :x: The job will terminate with an error if no package is found.
 
-## Supports
+## Compatibility
 | Ubuntu    | Windows |       MacOS |
 |:----------|:-------:|------------:|
 | :white_check_mark:  |  :white_check_mark:  | :white_check_mark: |
 
-### Contributing
-Please feel free to contribute or let me know if you find a bug. Also any ideas for improvement would be appreciated :innocent:
+> [!IMPORTANT]
+> When you're using self-hosted runners, please make sure you have Node.js v20 installed!
+
+## Contributing
+Please feel free to contribute or let me know if you find a bug. 
+Also, any ideas for improvement would be appreciated :innocent:
 
