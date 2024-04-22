@@ -43,6 +43,8 @@ so 10 retries are usually enough time between publishing and when the package is
 > [!IMPORTANT]
 > When you're using self-hosted runners, please make sure you have Node.js v20 installed!
 
+If you just want a script that does a package check, check out my gist with a bash script here: [check-nuget-pkg-indexed.sh](https://gist.github.com/BMTLab/28709f017c338a53e5845d04c00e6eb9)
+
 ## Contributing
 Please feel free to contribute or let me know if you find a bug. 
 Also, any ideas for improvement would be appreciated :innocent:
