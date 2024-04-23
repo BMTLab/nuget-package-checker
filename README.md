@@ -50,6 +50,7 @@ Input values will be validated, you will get an error if the format is incorrect
 Please add `continue-on-error: true` to just get the checking result.
 
 The action sets an output variable called `indexed`, which can be used in the following step by using: 
+
 `${{ steps.check-nuget-package.outputs.indexed}}`. It can only have `'true'` or `'false'` values.
 
 ## Compatibility
