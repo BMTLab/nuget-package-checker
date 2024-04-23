@@ -14,7 +14,7 @@
  * @param {number} ms - Duration in milliseconds to pause execution.
  * @returns {Promise<void>} A promise that resolves after the specified duration.
  */
-import { get } from 'axios'
+import axios from 'axios'
 
 export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -25,7 +25,7 @@ export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
  */
 export async function isResourceExist (url) {
   try {
-    const response = await get(url)
+    const response = await axios.get(url)
     return response.status === 200
   } catch (error) {
     if (error.response?.status === 404) {
