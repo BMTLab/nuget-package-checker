@@ -9,15 +9,18 @@ branding:
   color: blue
 inputs:
   package:
-    description: 'NuGet package name to check'
+    description: 'NuGet package name to check (SomeCompany.PackageName e.g)'
     required: true
   version:
-    description: 'Package version to check'
+    description: 'Package version to check (2.3.4-preview e.g)'
     required: true
   attempts:
-    description: 'Maximum number of attempts to check the package availability'
+    description: 'Maximum number of attempts to check the package availability (10 e.g)'
     required: false
     default: '1'
+outputs:
+  indexed:
+    description: 'Whether the package is indexed on nuget.org (true or false)'
 runs:
   using: 'node20'
   main: 'src/index.js'

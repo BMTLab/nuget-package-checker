@@ -1,30 +1,52 @@
+name: Cross-Platform CI
+
+# Trigger the workflow on push to the main branch, pull request to the main branch, or manually via workflow dispatch.
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Run jobs on a matrix of operating systems to ensure cross-platform compatibility.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
+      # Checkout the repository to access its content
       - uses: actions/checkout@v4
 
-      - name: Setup Node
+      # Setup Node.js environment on the runner to match the node version used in development.
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - uses: actions/cache@v4
+      # Cache node_modules based on hash of package.json and package-lock.json to speed up installations.
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.OS }}-build-${{ hashFiles('package.json', 'package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
             ${{ runner.OS }}-build-
 
+      # Install dependencies defined in package.json
       - run: npm install
-      - run: npm run test
 
-      # Step to check for inaccessible NuGet package
+      # Run lint and test scripts defined in package.json under the script "ci"
+      - run: npm run ci
+
+      # Step to use the GitHub Action built in this repo to check for an unavailable NuGet package.
       - name: Check Unavailable NuGet Package
+        id: check_unavailable
         uses: ./
         with:
           package: ${{ secrets.NUGET_NON_EXIST_PACKAGE }}
@@ -32,10 +54,21 @@ jobs:
           attempts: 3
         continue-on-error: true
 
-      # Step to check available NuGet package
+      # Log the output 'indexed' from the step above, useful for debugging.
+      - name: Log 'indexed' Output for Unavailable Package
+        run: |
+          echo "Indexed Output for Unavailable Package: ${{ steps.check_unavailable.outputs.indexed }}"
+
+      # Step to check an available NuGet package using the same GitHub Action.
       - name: Check Available NuGet Package
+        id: check_available
         uses: ./
         with:
           package: ${{ secrets.NUGET_EXIST_PACKAGE }}
           version: ${{ secrets.NUGET_EXIST_PACKAGE_VERSION }}
           attempts: 1
+
+      # Log the output 'indexed' from the step above to confirm the expected behavior.
+      - name: Log 'indexed' Output for Available Package
+        run: |
+          echo "Indexed Output for Available Package: ${{ steps.check_available.outputs.indexed }}"
