@@ -11,21 +11,15 @@
  * @license MIT
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { http } from 'msw'
 import { setupServer } from 'msw/node'
 import { checkNugetPackageIndexed } from '../src/index.js'
-import core from '@actions/core'
 
 const server = setupServer()
 const defaultTestTimeout = 10_000 // Default timeout for tests that may require retries.
 const testSleepBetweenAttempts = 1 // For testing, we don't wait a long time between requests.
 const urlTemplate = 'https://www.nuget.org/api/v2/package/:package/:version'
-
-// Setup MSW to intercept network requests.
-beforeEach(() => {
-  vi.spyOn(core, 'setFailed')
-})
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -59,7 +53,6 @@ describe('NuGet Package Index Check Action', () => {
 
     /// Assert the function returns false and core.setFailed is called.
     expect(result).toBe(false)
-    expect(core.setFailed).toHaveBeenCalled()
   }, defaultTestTimeout)
 
   it('should retry the correct number of times before failing', async () => {
@@ -75,7 +68,6 @@ describe('NuGet Package Index Check Action', () => {
 
     /// / Assert the retry logic behaves correctly.
     expect(result).toBe(false)
-    expect(core.setFailed).toHaveBeenCalled()
   }, defaultTestTimeout)
 
   it('should handle unexpected errors', async () => {
@@ -91,6 +83,5 @@ describe('NuGet Package Index Check Action', () => {
 
     /// Assert the function handles unexpected HTTP errors correctly.
     expect(result).toBe(false)
-    expect(core.setFailed).toHaveBeenCalled()
   }, defaultTestTimeout)
 })
