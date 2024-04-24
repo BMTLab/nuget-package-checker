@@ -35,7 +35,7 @@ so 10 retries are usually enough time between publishing and when the package is
     # Version without any prefix. 
     # 1, 1.0, 1.0.0 and 1.0.0.0 are suitable, 
     # it is also possible to specify the suffix via -
-    version: 1.3.505
+    version: 1.3.505.01-beta
 
     # The value must be > 0
     attempts: 10
