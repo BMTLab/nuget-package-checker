@@ -34,7 +34,7 @@ export function isValidPackageName (packageName) {
  * Validates the package version format.
  * Accepts major, major.minor, major.minor.patch, major.minor.patch.revision formats,
  * and can include pre-release versions with a hyphen.
- * Examples of valid formats include '1', '1.2', '1.2.3', '1.2.3,4' or '1.2.3,4-beta'.
+ * Examples of valid formats include '1', '1.2', '1.2.3', '1.2.3.4' or '1.2.3.4-beta'.
  *
  * @param {string} packageVersion - The version string to validate.
  * @returns {boolean} True if the version format is valid, otherwise false.
