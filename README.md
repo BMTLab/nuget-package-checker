@@ -11,7 +11,7 @@
 
 ```yaml
 - name: Check Available NuGet Package
-  uses: BMTLab/nuget-package-check-action@v1
+  uses: BMTLab/nuget-package-check-action@v1.2.0
   with:
     package: YourAwesomePackage
     version: 1.3.505
@@ -27,7 +27,7 @@ so 10 retries are usually enough time between publishing and when the package is
 ```yaml
 - name: Check Available NuGet Package
   id: check-nuget-package
-  uses: BMTLab/nuget-package-check-action@v1
+  uses: BMTLab/nuget-package-check-action@v1.2.0
   with:
     # Any valid NuGet Package name
     package: YourAwesomePackage
