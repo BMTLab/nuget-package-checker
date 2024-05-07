@@ -42,7 +42,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
-    "globals": "^15.0.0",
+    "globals": "^15.1.0",
     "msw": "^2.2.14",
     "vitest": "^1.5.0"
   },
