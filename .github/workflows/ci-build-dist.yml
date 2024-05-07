@@ -1,0 +1,49 @@
+name: Bundle CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-dist:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository to access its content
+      - uses: actions/checkout@v4
+
+      # Setup Node.js environment on the runner to match the node version used in development.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # Cache node_modules based on hash of package.json and package-lock.json to speed up installations.
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('package.json', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
+            ${{ runner.OS }}-build-
+
+      - name: Install Dependencies
+        id: install
+        run: npm install && npm ci
+
+      # Build and commit dist package
+      - name: Build package
+        uses: tool3/ncc@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          src: 'src/index.js'
+          branch: 'main'
+          commit_msg: '[CI] Update dist/index.js'
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
