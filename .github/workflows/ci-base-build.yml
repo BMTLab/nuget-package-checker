@@ -32,11 +32,15 @@ jobs:
             ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
             ${{ runner.OS }}-build-
 
-      # Install dependencies defined in package.json
-      - run: npm install
+      # Install dependencies, run lint and test scripts defined in package.json under the script "ci"
+      - name: Restore Dependencies
+        run: npm ci
 
-      # Run lint and test scripts defined in package.json under the script "ci"
-      - run: npm run ci
+      - name: Lint
+        run: npm run lint
+
+      - name: Run Unit Tests
+        run: npm test
 
       # Step to use the GitHub Action built in this repo to check for an unavailable NuGet package.
       - name: Check Unavailable NuGet Package

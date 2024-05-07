@@ -12,8 +12,6 @@ jobs:
     steps:
       # Checkout the repository to access its content
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       # Setup Node.js environment on the runner to match the node version used in development.
       - name: Setup Node.js
@@ -31,16 +29,15 @@ jobs:
             ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
             ${{ runner.OS }}-build-
 
-      - name: Install Dependencies
-        run: npm install && npm ci
+      - name: Restore Dependencies
+        run: npm ci
 
-      # Install build tool
-      - name: install ncc
+      - name: Install ncc
         run: npm i -g @vercel/ncc
 
       # Bundle and commit dist package
 
-      - name: Build package
+      - name: Bundle Package
         run: npm run package
 
       - name: Commit updated version
@@ -49,7 +46,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git add dist/index.js
           git commit -m "[GitHub Actions] Update dist/index.js"
-          git push --force
+          git push origin HEAD:${{ github.head_ref }} --force
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

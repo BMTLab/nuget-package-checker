@@ -33,7 +33,6 @@
     "test": "vitest run",
     "lint": "eslint .",
     "lint-fix": "npm run lint -- --fix",
-    "ci": "npm ci && npm run lint && npm test",
     "package": "ncc build src/index.js"
   },
   "dependencies": {
