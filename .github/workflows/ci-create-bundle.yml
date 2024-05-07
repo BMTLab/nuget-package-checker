@@ -30,17 +30,24 @@ jobs:
             ${{ runner.OS }}-build-
 
       - name: Install Dependencies
-        id: install
         run: npm install && npm ci
 
-      # Build and commit dist package
+      # Install build tool
+      - name: install ncc
+        run: npm i -g @vercel/ncc
+
+      # Bundle and commit dist package
+
       - name: Build package
-        uses: tool3/ncc@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          src: 'src/index.js'
-          branch: 'main'
-          commit_msg: '[CI] Update dist/index.js'
+        run: npm run package
+
+      - name: Commit updated version
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add dist/index.js
+          git commit -m "[GitHub Actions] Update dist/index.js"
+          git push --force
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

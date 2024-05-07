@@ -1,11 +1,11 @@
-name: Cross-Platform CI
+name: Cross-Platform Build CI
 
 # Trigger the workflow on push to the main branch, pull request to the main branch, or manually via workflow dispatch.
 on:
   workflow_call:
 
 jobs:
-  build:
+  build-and-test:
     # Run jobs on a matrix of operating systems to ensure cross-platform compatibility.
     runs-on: ${{ matrix.os }}
     strategy:
