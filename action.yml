@@ -5,14 +5,14 @@ description: >-
   GitHub Action automates NuGet package availability checks, ensuring packages exist and are indexed on nuget.org.
 author: 'BMTLab'
 branding:
-  icon: activity
+  icon: package
   color: blue
 inputs:
   package:
-    description: 'NuGet package name to check (SomeCompany.PackageName e.g)'
+    description: 'NuGet package name to check (SomeCompany.PackageName e.g). not case-insensitive'
     required: true
   version:
-    description: 'Package version to check (2.3.4-preview e.g)'
+    description: 'Package version to check (2.3.4-preview e.g), not case-insensitive'
     required: true
   attempts:
     description: 'Maximum number of attempts to check the package availability (10 e.g)'
