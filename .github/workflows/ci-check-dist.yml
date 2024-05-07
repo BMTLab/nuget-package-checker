@@ -48,9 +48,10 @@ jobs:
         id: install
         run: npm install && npm ci
 
-      - name: Build dist/ Directory
-        id: build
-        run: npm run package
+      - uses: tool3/ncc@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          src: 'src/index.js'
 
       # This will fail the workflow if the PR wasn't created by Dependabot.
       - name: Compare Directories
