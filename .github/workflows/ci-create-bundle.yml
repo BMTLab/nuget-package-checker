@@ -12,6 +12,8 @@ jobs:
     steps:
       # Checkout the repository to access its content
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       # Setup Node.js environment on the runner to match the node version used in development.
       - name: Setup Node.js
