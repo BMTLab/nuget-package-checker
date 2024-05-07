@@ -10,6 +10,16 @@ on:
       - main
 
 jobs:
-  build:
-    uses: ./.github/workflows/ci-base-build.yml
+  code-test:
+    uses: ./.github/workflows/ci-code-test.yml
+    secrets: inherit
+
+  create-bundle:
+    needs: code-test
+    uses: ./.github/workflows/ci-create-bundle.yml
+    secrets: inherit
+
+  action-test:
+    needs: create-bundle
+    uses: ./.github/workflows/ci-action-test.yml
     secrets: inherit
