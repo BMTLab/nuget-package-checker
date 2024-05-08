@@ -15,8 +15,9 @@ jobs:
       # Checkout the repository to access its content.
       - uses: actions/checkout@v4
 
+
       # Step to use the GitHub Action built in this repo to check for an unavailable NuGet package.
-      - name: Check Unavailable NuGet Package
+      - name: Check Unavailable NuGet package
         id: check_unavailable
         uses: ./
         with:
@@ -31,11 +32,30 @@ jobs:
             echo "Assertion failed: Expected 'false', got '${{ steps.check_unavailable.outputs.indexed }}'" >&2
             exit 10
           fi
-          echo 'Assertion passed for Unavailable Package.'
+          echo 'Assertion passed for Unavailable package.'
         shell: bash
 
-      # Step to check an available NuGet package using the same GitHub Action.
-      - name: Check Available NuGet Package
+
+
+      # Step to check behavior with incorrect inputs for this Action.
+      - name: Check Incorrect NuGet package
+        id: check_incorrect
+        uses: ./
+        with:
+          package: %InvalidPackageName
+          version: a.b.invalid_version
+          attempts: -10
+        continue-on-error: true
+
+      - name: Log output for Incorrect package
+        run: |
+          echo "For Incorrect package data got '${{ steps.check_incorrect.outputs.indexed }}'"
+        shell: bash
+
+
+
+      # Step to check an available NuGet package.
+      - name: Check Available NuGet package
         id: check_available
         uses: ./
         with:
@@ -43,11 +63,11 @@ jobs:
           version: ${{ secrets.NUGET_EXIST_PACKAGE_VERSION }}
           attempts: 1
 
-      - name: Assert 'indexed' Output for Available Package
+      - name: Assert 'indexed' output for Available package
         run: |
           if [ "${{ steps.check_available.outputs.indexed }}" != 'true' ]; then
             echo "Assertion failed: Expected 'true', got '${{ steps.check_available.outputs.indexed }}'" >&2
             exit 20
           fi
-          echo 'Assertion passed for Available Package.'
+          echo 'Assertion passed for Available package.'
         shell: bash
