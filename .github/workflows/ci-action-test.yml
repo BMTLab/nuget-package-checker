@@ -32,6 +32,7 @@ jobs:
             exit 10
           fi
           echo 'Assertion passed for Unavailable Package.'
+        shell: bash
 
       # Step to check an available NuGet package using the same GitHub Action.
       - name: Check Available NuGet Package
@@ -49,3 +50,4 @@ jobs:
             exit 20
           fi
           echo 'Assertion passed for Available Package.'
+        shell: bash
