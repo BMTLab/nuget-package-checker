@@ -17,7 +17,7 @@ import core from '@actions/core'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { isResourceExist, sleep } from './utils.js'
-import { isValidPackageName, isValidPackageVersion, isValidMaxAttempts } from './validation.js'
+import { isValidMaxAttempts, isValidPackageName, isValidPackageVersion } from './validation.js'
 
 const defaultAttemptsCount = 1
 const defaultSleepBetweenAttempts = 30_000
@@ -42,12 +42,12 @@ export async function checkNugetPackageIndexed (
     const isIndexed = await isResourceExist(url)
 
     if (isIndexed) {
-      console.log(`Package ${packageName} version ${packageVersion} is indexed on nuget.org.`)
+      core.info(`Package ${packageName} version ${packageVersion} is indexed on nuget.org.`)
       return true
     }
 
     if (attempt < maxAttempts) {
-      console.log(`Attempt ${attempt} of ${maxAttempts}: Package not indexed yet. Retrying in ${timeout / 1_000} seconds...`)
+      core.info(`Attempt ${attempt} of ${maxAttempts}: Package not indexed yet. Retrying in ${timeout / 1_000} seconds...`)
       await sleep(timeout)
     }
   }
@@ -60,39 +60,39 @@ export async function checkNugetPackageIndexed (
  * Validates inputs and handles configuration before invoking the package check function.
  */
 function run () {
-  console.log('Starting NuGet Package Index Checker...')
+  core.debug('Starting NuGet Package Index Checker...')
 
   const packageName = core.getInput('package', { required: true })
   const packageVersion = core.getInput('version', { required: true })
   const maxAttempts = parseInt(core.getInput('attempts'), 10) || defaultAttemptsCount
 
   // Logging input values for debugging
-  console.log(`Package Name: ${packageName}`)
-  console.log(`Package Version: ${packageVersion}`)
-  console.log(`Max Attempts: ${maxAttempts}`)
+  core.debug(`Package Name: ${packageName}`)
+  core.debug(`Package Version: ${packageVersion}`)
+  core.debug(`Max Attempts: ${maxAttempts}`)
 
   // Validate input values.
   if (!isValidPackageName(packageName)) {
-    console.error(`Validation Error: Invalid package name: ${packageName}`)
+    core.error(`Validation Error: Invalid package name: ${packageName}`)
     core.setFailed('Invalid package name.')
     return
   }
 
   if (!isValidPackageVersion(packageVersion)) {
-    console.error(`Validation Error: Invalid package version: ${packageVersion}`)
+    core.error(`Validation Error: Invalid package version: ${packageVersion}`)
     core.setFailed('Invalid package version. Expected format: x.y.z or x.y.z-label.')
     return
   }
 
   if (!isValidMaxAttempts(maxAttempts)) {
-    console.error(`Validation Error: Invalid number of attempts: ${maxAttempts}`)
+    core.error(`Validation Error: Invalid number of attempts: ${maxAttempts}`)
     core.setFailed('Invalid number of attempts. Must be a positive integer.')
     return
   }
 
   checkNugetPackageIndexed(packageName, packageVersion, maxAttempts)
     .then(isIndexed => {
-      console.log(`Package indexed status: ${isIndexed}`)
+      core.info(`Package indexed status: ${isIndexed}`)
       core.setOutput('indexed', String(isIndexed))
       if (!isIndexed) {
         core.setFailed(`Package ${packageName} version ${packageVersion} is not indexed.`)
@@ -100,7 +100,7 @@ function run () {
     })
   // Execute the check and handle any errors.
     .catch(error => {
-      console.error(`Error during package check: ${error.message}`)
+      core.error(`Error during package check: ${error.message}`)
       core.setOutput('indexed', 'false')
       core.setFailed(error.message)
     })
