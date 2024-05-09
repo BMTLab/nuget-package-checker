@@ -1,16 +1,14 @@
 name: Bundle CI
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
 
 jobs:
   bundle:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository to access its content
+      # Checkout the repository to access its content.
       - uses: actions/checkout@v4
 
       # Setup Node.js environment on the runner to match the node version used in development.
@@ -29,26 +27,34 @@ jobs:
             ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
             ${{ runner.OS }}-build-
 
-      - name: Restore Dependencies
+      - name: Restore dependencies
         run: npm ci
 
       - name: Install ncc
         run: npm i -g @vercel/ncc
 
-      # Bundle and commit dist package
+      ### Try to bundle & commit dist package.
 
-      - name: Bundle Package
-        run: npm run package
+      - name: Check for git changes
+        id: check_changes
+        run: |
+          git add dist/index.js
+          if git diff --staged --quiet; then
+            echo "changes_exist=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes_exist=true" >> $GITHUB_OUTPUT
+          fi
+        shell: sh
 
       - name: Commit updated version
+        if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          git add dist/index.js
           git commit -m "[GitHub Actions] Update dist/index.js"
           git push origin HEAD:${{ github.head_ref }} --force
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: dist

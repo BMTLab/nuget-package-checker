@@ -15,7 +15,7 @@
  * @param {RegExp} [pattern] - A regex pattern that the input must match.
  * @returns {boolean} True if the input is valid, otherwise false.
  */
-function isValidInput (input, pattern = undefined) {
+export function isValidInput (input, pattern = undefined) {
   return typeof input === 'string' && input.trim() !== '' && (pattern ? pattern.test(input) : true)
 }
 
@@ -23,11 +23,16 @@ function isValidInput (input, pattern = undefined) {
  * Validates the package name against a specific pattern.
  * Allows alphanumeric characters, underscores, hyphens, and dots.
  *
+ * 1. (?!.*\.\.) -- negative forward check, ensuring that there are no two dots in a row in the string.
+ * 2. (?!.*\.$) -- negative forward check to ensure that the string does not end with a dot.
+ * 3. (?!.*-$) --- negative forward check to ensure that the string does not end with hyphens.
+ * 4. (?!^\.)(?!^[^a-zA-Z0-9]+) -- negative forward check to ensure that the string does not start with a dot or any character that is not a letter or number.
+ * 5. ([a-zA-Z0-9._-]+) -- sequence of letters, numbers, and dots that is the main part of a name.
  * @param {string} packageName - The package name to validate.
- * @returns {boolean} True if the package name is valid according to the given pattern, false otherwise.
+ * @returns {boolean} True if the package name is valid, according to the given pattern, false otherwise.
  */
 export function isValidPackageName (packageName) {
-  return isValidInput(packageName, /^[a-zA-Z0-9_.-]+$/)
+  return isValidInput(packageName, /^(?!.*\.\.)(?!.*\.$)(?!^\.)(?!.*-$)(?!^[^a-zA-Z0-9]+)([a-zA-Z0-9._-]+)$/)
 }
 
 /**

@@ -9,10 +9,10 @@ branding:
   color: blue
 inputs:
   package:
-    description: 'NuGet package name to check (SomeCompany.PackageName e.g). not case-insensitive'
+    description: 'NuGet package name to check (SomeCompany.PackageName e.g), case-insensitive'
     required: true
   version:
-    description: 'Package version to check (2.3.4-preview e.g), not case-insensitive'
+    description: 'Package version to check (2.3.4-preview e.g), case-insensitive'
     required: true
   attempts:
     description: 'Maximum number of attempts to check the package availability (10 e.g)'
