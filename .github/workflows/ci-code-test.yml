@@ -11,6 +11,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+    env:
+      OS: ${{ matrix.os }}
+
     steps:
       # Checkout the repository to access its content.
       - uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
             ${{ runner.OS }}-build-${{ hashFiles('package.json') }}-
             ${{ runner.OS }}-build-
 
-      ### Try to install dependencies, run lint and tests scripts.
+      ### Install dependencies, run lint and tests scripts with coverage.
 
       - name: Restore dependencies
         run: npm ci
@@ -41,3 +44,13 @@ jobs:
 
       - name: Run unit tests
         run: npm test
+
+      ## Code coverage
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.3.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS
+          verbose: true
+          file: coverage/coverage-final.json
+
