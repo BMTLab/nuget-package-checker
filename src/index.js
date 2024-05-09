@@ -68,7 +68,7 @@ export async function run () {
   } catch (error) {
     core.error(`Error during package check: ${error.message}`)
     core.setOutput('indexed', 'false')
-    core.setFailed(error.message)
+    core.setFailed(error)
   } finally {
     core.debug('NuGet Package Index Checker finished work...')
   }

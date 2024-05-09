@@ -1,6 +1,6 @@
 {
   "name": "nuget-package-check-action",
-  "version": "1.4.0",
+  "version": "1.4.5",
   "description": "GitHub Action automates NuGet package availability checks, ensuring packages exist and are indexed on nuget.org.",
   "author": "neverovnikita.bmt@gmail.com",
   "license": "MIT",
@@ -48,8 +48,8 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
-    "globals": "^15.1.0",
-    "msw": "^2.2.14",
+    "globals": "^15.2.0",
+    "msw": "^2.3.0",
     "vitest": "^1.6.0"
   },
   "publishConfig": {

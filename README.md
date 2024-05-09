@@ -2,7 +2,7 @@
 
 [![CI-Main](https://github.com/BMTLab/nuget-package-check-action/actions/workflows/ci-main.yml/badge.svg)](https://github.com/BMTLab/nuget-package-check-action/actions/workflows/ci-main.yml)
 [![CodeQL](https://github.com/BMTLab/nuget-package-check-action/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/BMTLab/nuget-package-check-action/actions/workflows/github-code-scanning/codeql)
-[![codecov](https://codecov.io/gh/BMTLab/nuget-package-check-action/branch/dev/graph/badge.svg?token=YGYDJTTSQB)](https://codecov.io/gh/BMTLab/nuget-package-check-action)
+[![codecov](https://codecov.io/gh/BMTLab/nuget-package-check-action/graph/badge.svg?token=YGYDJTTSQB)](https://codecov.io/gh/BMTLab/nuget-package-check-action)
 
 - [x] Automates NuGet package availability checks, ensuring packages exist and are indexed on [nuget.org](https://nuget.org).
 - [x] Supports multiple verification attempts and can suspend CI/CD workflows until the package is published.
@@ -14,7 +14,7 @@
 
 ```yaml
 - name: Check Available NuGet Package
-  uses: BMTLab/nuget-package-check-action@v1.4.0
+  uses: BMTLab/nuget-package-check-action@v1.4.5
   with:
     package: Your.AwesomePackage
     version: 1.3.505
@@ -30,7 +30,7 @@ so 10 retries are usually enough time between publishing and when the package is
 ```yaml
 - name: Check Available NuGet Package
   id: check-nuget-package
-  uses: BMTLab/nuget-package-check-action@v1.4.0
+  uses: BMTLab/nuget-package-check-action@v1.4.5
   with:
     package: Your.AwesomePackage # 👈🏻 Any valid NuGet Package name, case-insensitive
     version: 1.3.505.01-beta     # 👈🏻 Version without any prefix ('v' e.g), case-insensitive
@@ -62,7 +62,7 @@ The action sets an output variable called `indexed`, which can be used in the fo
 #### Action output log
 
 ```text
-⮞ Run BMTLab/nuget-package-check-action@v1.4.0
+⮞ Run BMTLab/nuget-package-check-action@v1.4.5
 Starting NuGet Package Index Checker...
 Package Name: BMTLab.OneOf.Reduced
 Package Version: 4.1.0424

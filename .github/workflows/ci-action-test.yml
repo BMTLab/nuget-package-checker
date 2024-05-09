@@ -3,6 +3,12 @@ name: Cross-Platform Action Test CI
 on:
   workflow_call:
 
+env:
+  NUGET_EXIST_PACKAGE: BMTLab.OneOf.Reduced
+  NUGET_EXIST_PACKAGE_VERSION: 4.1.424
+  NUGET_NON_EXIST_PACKAGE: NonExistingPackage.AGHEQDEHWAXE
+  NUGET_NON_EXIST_PACKAGE_VERSION: 1.0.0
+
 jobs:
   action-test:
     # Run jobs on a matrix of operating systems to ensure cross-platform compatibility.
@@ -21,8 +27,8 @@ jobs:
         id: check_unavailable
         uses: ./
         with:
-          package: ${{ secrets.NUGET_NON_EXIST_PACKAGE }}
-          version: ${{ secrets.NUGET_NON_EXIST_PACKAGE_VERSION }}
+          package: ${{ env.NUGET_NON_EXIST_PACKAGE }}
+          version: ${{ env.NUGET_NON_EXIST_PACKAGE_VERSION }}
           attempts: 3
         continue-on-error: true
 
@@ -59,8 +65,8 @@ jobs:
         id: check_available
         uses: ./
         with:
-          package: ${{ secrets.NUGET_EXIST_PACKAGE }}
-          version: ${{ secrets.NUGET_EXIST_PACKAGE_VERSION }}
+          package: ${{ env.NUGET_EXIST_PACKAGE }}
+          version: ${{ env.NUGET_EXIST_PACKAGE_VERSION }}
           attempts: 1
 
       - name: Assert 'indexed' output for Available package

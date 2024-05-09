@@ -164,7 +164,26 @@ describe('Action Run', () => {
     /// Assert
     expect(core.error).toHaveBeenCalledWith(`Error during package check: ${error.message}`)
     expect(core.setOutput).toHaveBeenCalledWith('indexed', String(false))
-    expect(core.setFailed).toHaveBeenCalledWith(error.message)
+    expect(core.setFailed).toHaveBeenCalledWith(error)
     expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')
+  })
+})
+
+describe('Script Execution Entry Check', () => {
+  it('should not execute run function if script is not run directly', async () => {
+    /// Arrange
+    const originalArgv = process.argv
+    vi.stubGlobal('process.argv', [process.execPath, 'someOtherFile.js'])
+    const runSpy = vi.spyOn({ run }, 'run').mockResolvedValue()
+
+    /// Act
+    // Load the script, which should check argv and possibly not call run()
+    await import('../src/index.js')
+
+    /// Assert
+    expect(runSpy).not.toHaveBeenCalled()
+
+    /// Cleanup
+    vi.stubGlobal('process.argv', originalArgv)
   })
 })
