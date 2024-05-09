@@ -16,6 +16,8 @@
 import core from '@actions/core'
 import checkNugetPackageIndexed from './core.js'
 import { isValidMaxAttempts, isValidPackageName, isValidPackageVersion } from './validation.js'
+import { fileURLToPath } from 'url'
+import path from 'path'
 
 const defaultAttemptsCount = 1
 
@@ -70,4 +72,13 @@ export async function run () {
   } finally {
     core.debug('NuGet Package Index Checker finished work...')
   }
+}
+
+// Retrieve the current file and directory from the URL of the import.meta.
+const currentFile = fileURLToPath(import.meta.url)
+const currentDir = path.dirname(currentFile)
+
+// Check if this script is being run directly (not imported as a module), and if so, execute it.
+if (process.argv[1] === currentFile || process.argv[1] === `${currentDir}/index.js`) {
+  await run()
 }
