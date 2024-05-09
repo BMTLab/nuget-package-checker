@@ -49,7 +49,7 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "globals": "^15.1.0",
-    "msw": "^2.2.14",
+    "msw": "^2.3.0",
     "vitest": "^1.6.0"
   },
   "publishConfig": {
