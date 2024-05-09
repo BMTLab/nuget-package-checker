@@ -109,7 +109,7 @@ describe('Action Run', () => {
     await run()
 
     /// Assert
-    expect(core.info).toHaveBeenCalledTimes(1)
+    expect(core.info).toHaveBeenCalled()
     expect(core.setOutput).toHaveBeenCalledWith('indexed', String(true))
     expect(core.setFailed).toHaveBeenCalledTimes(0)
     expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')
@@ -135,7 +135,7 @@ describe('Action Run', () => {
     await run()
 
     /// Assert
-    expect(core.info).toHaveBeenCalledTimes(1)
+    expect(core.info).toHaveBeenCalled()
     expect(core.setOutput).toHaveBeenCalledWith('indexed', String(false))
     expect(core.setFailed).toHaveBeenCalledWith(`Package ${packageName} version ${packageVersion} is not indexed.`)
     expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')

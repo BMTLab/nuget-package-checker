@@ -24,15 +24,15 @@ const defaultAttemptsCount = 1
  * Validates inputs and handles configuration before invoking the package check function.
  */
 export async function run () {
-  core.debug('Starting NuGet Package Index Checker...')
+  core.info('Starting NuGet Package Index Checker...')
 
   const packageName = core.getInput('package', { required: true })
   const packageVersion = core.getInput('version', { required: true })
   const maxAttempts = parseInt(core.getInput('attempts'), 10) || defaultAttemptsCount
 
   // Logging input values for debugging
-  core.debug(`Package Name: ${packageName}`)
-  core.debug(`Package Version: ${packageVersion}`)
+  core.info(`Package Name: ${packageName}`)
+  core.info(`Package Version: ${packageVersion}`)
   core.debug(`Attempts: ${maxAttempts}`)
 
   // Validate input values.
