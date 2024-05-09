@@ -14,52 +14,16 @@
 
 // GitHub Actions toolkit for interaction with GitHub Actions.
 import core from '@actions/core'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
-import { isResourceExist, sleep } from './utils.js'
+import checkNugetPackageIndexed from './core.js'
 import { isValidMaxAttempts, isValidPackageName, isValidPackageVersion } from './validation.js'
 
 const defaultAttemptsCount = 1
-const defaultSleepBetweenAttempts = 30_000
-
-/**
- * Repeatedly checks if a NuGet package is indexed until the maximum number of attempts is reached.
- * @param {string} packageName - The name of the NuGet package to check.
- * @param {string} packageVersion - The version of the NuGet package to check.
- * @param {number} maxAttempts - The maximum number of times to check if the package is indexed.
- * @param {number} [timeout=30000] - The delay in milliseconds between check attempts. Defaults to 30000 milliseconds.
- * @returns {Promise<boolean>} True if the package is eventually found to be indexed, otherwise false.
- */
-export async function checkNugetPackageIndexed (
-  packageName,
-  packageVersion,
-  maxAttempts,
-  timeout = defaultSleepBetweenAttempts
-) {
-  const url = `https://www.nuget.org/api/v2/package/${packageName}/${packageVersion}`
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const isIndexed = await isResourceExist(url)
-
-    if (isIndexed) {
-      core.info(`Package ${packageName} version ${packageVersion} is indexed on nuget.org.`)
-      return true
-    }
-
-    if (attempt < maxAttempts) {
-      core.info(`Attempt ${attempt} of ${maxAttempts}: Package not indexed yet. Retrying in ${timeout / 1_000} seconds...`)
-      await sleep(timeout)
-    }
-  }
-
-  return false
-}
 
 /**
  * The main execution function that reads inputs and initiates the checking process.
  * Validates inputs and handles configuration before invoking the package check function.
  */
-function run () {
+export async function run () {
   core.debug('Starting NuGet Package Index Checker...')
 
   const packageName = core.getInput('package', { required: true })
@@ -69,7 +33,7 @@ function run () {
   // Logging input values for debugging
   core.debug(`Package Name: ${packageName}`)
   core.debug(`Package Version: ${packageVersion}`)
-  core.debug(`Max Attempts: ${maxAttempts}`)
+  core.debug(`Attempts: ${maxAttempts}`)
 
   // Validate input values.
   if (!isValidPackageName(packageName)) {
@@ -90,26 +54,20 @@ function run () {
     return
   }
 
-  checkNugetPackageIndexed(packageName, packageVersion, maxAttempts)
-    .then(isIndexed => {
-      core.info(`Package indexed status: ${isIndexed}`)
-      core.setOutput('indexed', String(isIndexed))
-      if (!isIndexed) {
-        core.setFailed(`Package ${packageName} version ${packageVersion} is not indexed.`)
-      }
-    })
-  // Execute the check and handle any errors.
-    .catch(error => {
-      core.error(`Error during package check: ${error.message}`)
-      core.setOutput('indexed', 'false')
-      core.setFailed(error.message)
-    })
-}
+  try {
+    const isIndexed = await checkNugetPackageIndexed(packageName, packageVersion, maxAttempts)
 
-const currentFile = fileURLToPath(import.meta.url)
-const currentDir = dirname(currentFile)
+    core.info(`Package indexed status: ${isIndexed}`)
+    core.setOutput('indexed', String(isIndexed))
 
-// Check if this script is being run directly (not imported as a module), and if so, execute it.
-if (process.argv[1] === currentFile || process.argv[1] === `${currentDir}/index.js`) {
-  run()
+    if (!isIndexed) {
+      core.setFailed(`Package ${packageName} version ${packageVersion} is not indexed.`)
+    }
+  } catch (error) {
+    core.error(`Error during package check: ${error.message}`)
+    core.setOutput('indexed', 'false')
+    core.setFailed(error.message)
+  } finally {
+    core.debug('NuGet Package Index Checker finished work...')
+  }
 }
