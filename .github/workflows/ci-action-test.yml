@@ -42,7 +42,7 @@ jobs:
         id: check_incorrect
         uses: ./
         with:
-          package: %InvalidPackageName
+          package: '-Invalid..PackageName-'
           version: a.b.invalid_version
           attempts: -10
         continue-on-error: true
