@@ -15,7 +15,7 @@
  * @param {RegExp} [pattern] - A regex pattern that the input must match.
  * @returns {boolean} True if the input is valid, otherwise false.
  */
-function isValidInput (input, pattern = undefined) {
+export function isValidInput (input, pattern = undefined) {
   return typeof input === 'string' && input.trim() !== '' && (pattern ? pattern.test(input) : true)
 }
 

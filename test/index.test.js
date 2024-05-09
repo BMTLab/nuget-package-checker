@@ -1,87 +1,170 @@
 /**
- * Test suite for the NuGet Package Index Checker
+ * Test suite for the Main Execution Function of the NuGet Package Index Checker Action.
  *
- * This file contains tests that verify whether the checkNugetPackageIndexed function
- * accurately determines the indexing status of NuGet packages on nuget.org. It uses
- * the MSW (Mock Service Worker) library to intercept and mock HTTP requests, simulating
- * different scenarios to ensure the functionality behaves as expected under various conditions.
+ * This file contains tests for the `run` function, which is the main entry point of the GitHub Action.
+ * These tests verify the integration of input validation, error handling, and the package checking process,
+ * simulating various scenarios to ensure the functionality behaves as expected under different conditions.
+ * The tests cover scenarios including valid and invalid input values, handling of HTTP request outcomes,
+ * and proper logging of actions performed by the function.
  *
- * @file   This file defines tests for the checkNugetPackageIndexed function using Vitest.
- * @author Nikita (BMTLab) Neverov (neverovnikita.bmt@gmail.com)
+ * @file   This file defines tests for the `run` function using Vitest, focusing on the overall behavior
+ *         and interaction with mocked dependencies.
+ * @author Nikita (Neverov) BMTLab
  * @license MIT
  */
 
-import { describe, it, expect, afterEach, vi } from 'vitest'
-import { http } from 'msw'
-import { setupServer } from 'msw/node'
-import { checkNugetPackageIndexed } from '../src/index.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import * as core from '@actions/core'
+import { run } from '../src/index.js'
 
-const server = setupServer()
-const defaultTestTimeout = 10_000 // Default timeout for tests that may require retries.
-const testSleepBetweenAttempts = 1 // For testing, we don't wait a long time between requests.
-const urlTemplate = 'https://www.nuget.org/api/v2/package/:package/:version'
-
-afterEach(() => {
-  vi.restoreAllMocks()
+vi.mock('@actions/core')
+vi.mock('../src/core.js', async () => {
+  return { default: vi.fn().mockResolvedValue(true) }
 })
 
-describe('NuGet Package Index Check Action', () => {
-  it('should detect indexed packages correctly', async () => {
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+describe('Action Run', () => {
+  it('should fail if package name is invalid', async () => {
     /// Arrange
-    server.use(
-      http.get(urlTemplate, (req, res, ctx) =>
-        res(ctx.status(200)))
-    )
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return '%invalidName'
+        case 'version': return '1.0.0'
+        case 'attempts': return '3'
+      }
+    })
 
     /// Act
-    const result = await checkNugetPackageIndexed('SomePackage', '1.0.0', 1)
+    await run()
 
-    /// Assert the function returns true for indexed packages.
-    expect(result).toBe(true)
+    /// Assert
+    expect(core.setFailed).toHaveBeenCalledWith('Invalid package name.')
   })
 
-  it('should return false when package is not indexed', async () => {
+  it('should fail if package version is invalid', async () => {
     /// Arrange
-    server.use( // Setup MSW to return a 404 Not Found response for the package URL.
-      http.get(urlTemplate, (req, res, ctx) => {
-        return res(ctx.status(404))
-      })
-    )
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return 'validName'
+        case 'version': return 'A.B.Invalid'
+        case 'attempts': return '3'
+      }
+    })
 
     /// Act
-    const result = await checkNugetPackageIndexed('UnknownPackage', '1.0.0', 1)
+    await run()
 
-    /// Assert the function returns false and core.setFailed is called.
-    expect(result).toBe(false)
-  }, defaultTestTimeout)
+    /// Assert
+    expect(core.setFailed).toHaveBeenCalledWith('Invalid package version. Expected format: x.y.z or x.y.z-label.')
+  })
 
-  it('should retry the correct number of times before failing', async () => {
+  it('should fail if attempts count is invalid', async () => {
     /// Arrange
-    server.use( // Setup MSW to consistently return a 404 response to simulate retry logic.
-      http.get(urlTemplate, (req, res, ctx) => {
-        return res(ctx.status(404))
-      })
-    )
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return 'validName'
+        case 'version': return '1.0.0'
+        case 'attempts': return '-10'
+      }
+    })
 
     /// Act
-    const result = await checkNugetPackageIndexed('RetryPackage', '1.0.0', 3, testSleepBetweenAttempts) // Short delay for tests.
+    await run()
 
-    /// / Assert the retry logic behaves correctly.
-    expect(result).toBe(false)
-  }, defaultTestTimeout)
+    /// Assert
+    expect(core.setFailed).toHaveBeenCalledWith('Invalid number of attempts. Must be a positive integer.')
+  })
 
-  it('should handle unexpected errors', async () => {
+  it('should set attempts count as 1 if attempts is not set', async () => {
     /// Arrange
-    server.use( // Setup MSW to return a 500 Internal Server Error to simulate an unexpected failure.
-      http.get(urlTemplate, (req, res, ctx) => {
-        return res(ctx.status(500))
-      })
-    )
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return 'validName'
+        case 'version': return '1.0.0'
+        case 'attempts': return undefined
+      }
+    })
 
     /// Act
-    const result = await checkNugetPackageIndexed('ErrorPackage', '1.0.0', 1)
+    await run()
 
-    /// Assert the function handles unexpected HTTP errors correctly.
-    expect(result).toBe(false)
-  }, defaultTestTimeout)
+    /// Assert
+    expect(core.debug).toHaveBeenCalledWith('Attempts: 1')
+  })
+
+  it('should handle success properly', async () => {
+    /// Arrange
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return 'SomePackage'
+        case 'version': return '1.0.0'
+        case 'attempts': return '1'
+      }
+    })
+
+    /// Act
+    await run()
+
+    /// Assert
+    expect(core.info).toHaveBeenCalledTimes(1)
+    expect(core.setOutput).toHaveBeenCalledWith('indexed', String(true))
+    expect(core.setFailed).toHaveBeenCalledTimes(0)
+    expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')
+  })
+
+  it('should handle failure properly', async () => {
+    /// Arrange
+    const packageName = 'SomePackage'
+    const packageVersion = '1.0.0'
+
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return packageName
+        case 'version': return packageVersion
+        case 'attempts': return '1'
+      }
+    })
+
+    const mockedCore = (await import('../src/core.js')).default
+    vi.mocked(mockedCore).mockResolvedValue(false)
+
+    /// Act
+    await run()
+
+    /// Assert
+    expect(core.info).toHaveBeenCalledTimes(1)
+    expect(core.setOutput).toHaveBeenCalledWith('indexed', String(false))
+    expect(core.setFailed).toHaveBeenCalledWith(`Package ${packageName} version ${packageVersion} is not indexed.`)
+    expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')
+  })
+
+  it('should handle error properly', async () => {
+    /// Arrange
+    const packageName = 'SomePackage'
+    const packageVersion = '1.0.0'
+
+    vi.mocked(core.getInput).mockImplementation((input) => {
+      switch (input) {
+        case 'package': return packageName
+        case 'version': return packageVersion
+        case 'attempts': return '1'
+      }
+    })
+
+    const error = new Error('Network error or no response received')
+    const mockedCore = (await import('../src/core.js')).default
+    vi.mocked(mockedCore).mockRejectedValue(error)
+
+    /// Act
+    await run()
+
+    /// Assert
+    expect(core.error).toHaveBeenCalledWith(`Error during package check: ${error.message}`)
+    expect(core.setOutput).toHaveBeenCalledWith('indexed', String(false))
+    expect(core.setFailed).toHaveBeenCalledWith(error.message)
+    expect(core.debug).toHaveBeenCalledWith('NuGet Package Index Checker finished work...')
+  })
 })
