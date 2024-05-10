@@ -84,7 +84,7 @@ Package indexed status: true
 If you just want a script that does a package check, check out my **gist** with a bash script here: 
 [check-nuget-pkg-indexed.sh](https://gist.github.com/BMTLab/28709f017c338a53e5845d04c00e6eb9)
 
-## Contributing
+## [Contributing](CONTRIBUTING.md)
 Please feel free to fork this, contribute or let me know if you find a bug. 
 Also, any ideas for improvement would be appreciated :innocent:
 
