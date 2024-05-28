@@ -34,7 +34,6 @@ jobs:
         run: npm i -g @vercel/ncc
 
       ### Try to bundle & commit dist package.
-
       - name: Bundle
         run: npm run package
 
@@ -53,6 +52,8 @@ jobs:
 
       - name: Commit updated version
         if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
