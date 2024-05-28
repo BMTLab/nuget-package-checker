@@ -1,6 +1,3 @@
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -10,17 +7,34 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    target-branch: "dev"
+    open-pull-requests-limit: 10
+    reviewers:
+      - BMTLab
+    labels:
+      - dependencies
+      - npm
+    assignees:
+      - BMTLab
     ignore:
       - dependency-name: "eslint"
         versions: [ "8.57.x" ]
       - dependency-name: "eslint-plugin-n"
         versions: [ "16.6.x" ]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "eslint"
-        versions: [ "8.57.x" ]
-      - dependency-name: "eslint-plugin-n"
-        versions: [ "16.6.x" ]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    target-branch: "dev"
+    open-pull-requests-limit: 10
+    reviewers:
+      - BMTLab
+    labels:
+      - dependencies
+      - github-actions
+    assignees:
+      - BMTLab
