@@ -20,9 +20,10 @@ describe('Sleep Utility', () => {
     /// Assert
     const ms = 500
 
-    // The delay value could be, for example, 499.99 or 500.990 or even 505ms.
+    // The delay value could be, for example, 499.99 or 500.990 or even 511.99ms.
+    // The issue usually takes place within the windows-runner.
     // But it is enough for us that the delay will be approximately equal to 500ms.
-    const tolerance = 10
+    const tolerance = ms * 0.1
     const spy = vi.fn()
 
     /// Act
