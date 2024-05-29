@@ -18,7 +18,6 @@ export default [
       'comma-dangle': ['error', 'never'],
       'indent': ['error', 2, { 'SwitchCase': 1 }],
       'key-spacing': ['error', { 'beforeColon': false, 'afterColon': true }],
-      'linebreak-style': ['error', 'unix'],
       'quotes': ['error', 'single', { 'avoidEscape': true }],
       'semi': ['error', 'never'],
       'space-before-blocks': ['error', 'always'],
