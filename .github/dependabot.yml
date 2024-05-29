@@ -16,11 +16,6 @@ updates:
       - npm
     assignees:
       - BMTLab
-    ignore:
-      - dependency-name: "eslint"
-        versions: [ "8.57.x" ]
-      - dependency-name: "eslint-plugin-n"
-        versions: [ "16.6.x" ]
 
   - package-ecosystem: "github-actions"
     directory: "/"
