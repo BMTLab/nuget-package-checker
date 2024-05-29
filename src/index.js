@@ -10,6 +10,7 @@
  *         including the action's primary logic and execution flow.
  * @author Nikita (BMTLab) Neverov (neverovnikita.bmt@gmail.com)
  * @license MIT
+ * @copyright BMTLab 2024
  */
 
 // GitHub Actions toolkit for interaction with GitHub Actions.

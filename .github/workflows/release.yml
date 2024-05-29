@@ -12,16 +12,25 @@ jobs:
   rebase-and-merge:
     runs-on: ubuntu-latest
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      MAIN_BRANCH: tmp
+
     steps:
       - name: Checkout dev branch
         uses: actions/checkout@v4
         with:
           ref: dev
 
-      - name: Setup Git
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Actions"
+      - name: Setup GPG for signing
+        uses: ./.github/actions/git-gpg-setup
+        with:
+          name: ${{ vars.BOT_NAME }}
+          email: ${{ vars.BOT_EMAIL }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Validate version
         id: validate_version
@@ -38,7 +47,7 @@ jobs:
           git fetch --tags
 
           # Get the latest tag
-          LATEST_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)" || echo "0.0.0")
+          LATEST_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)" || echo '0.0.0')
           LATEST_TAG=${LATEST_TAG#v}
           
           # Compare versions
@@ -52,12 +61,12 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Rebase dev on main
         run: |
           git checkout dev
-          git rebase main
+          git rebase ${{ env.MAIN_BRANCH }}
 
       - name: Push changes to dev
         run: |
@@ -66,7 +75,7 @@ jobs:
       - name: Checkout main branch again
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ env.MAIN_BRANCH }}
 
       - name: Merge dev into main with fast-forward
         run: |
@@ -74,10 +83,11 @@ jobs:
 
       - name: Push changes to main
         run: |
-          git push origin main
+          git push origin ${{ env.MAIN_BRANCH }}
 
       - name: Create Tag
         run: |
           TAG_NAME="v${{ github.event.inputs.version }}"
-          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          echo "${GPG_PASSPHRASE}" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --detach-sign --output tag.sig
+          git tag -a $TAG_NAME -m "Release $TAG_NAME" --sign --file tag.sig
           git push origin $TAG_NAME

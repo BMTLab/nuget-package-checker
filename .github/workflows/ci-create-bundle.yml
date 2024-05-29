@@ -7,6 +7,10 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
 
+    env:
+      BOT_NAME: ${{ vars.BOT_NAME }}
+      BOT_EMAIL: ${{ vars.BOT_EMAIL }}
+
     steps:
       # Checkout the repository to access its content.
       - uses: actions/checkout@v4
@@ -37,7 +41,9 @@ jobs:
         if: ${{ runner.debug == '1' }}
         run: echo $GITHUB_REF
 
+
       ### Try to bundle & commit dist package.
+
       - name: Bundle
         run: npm run package
 
@@ -65,14 +71,24 @@ jobs:
             echo "branch_name=$(basename $GITHUB_REF)" >> $GITHUB_OUTPUT
           fi
 
+      - name: Setup GPG for signing
+        if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
+        uses: ./.github/actions/git-gpg-setup
+        with:
+          name: ${{ env.BOT_NAME }}
+          email: ${{ env.BOT_EMAIL }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Commit updated version
         if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GPG_TTY: $(tty)
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Actions"
-          git commit -m "[GitHub Actions] Update dist/index.js"
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --detach-sign
+          git commit -m "[${{ env.BOT_NAME }}] Update dist/index.js" -S
           git push origin HEAD:${{ steps.determine_branch.outputs.branch_name }} --force
 
       - name: Upload artifact

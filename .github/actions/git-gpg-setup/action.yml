@@ -1,0 +1,32 @@
+name: Git and GPG Setup
+description: 'Set up GPG signed git bot'
+inputs:
+  name:
+    description: 'GitHub bot name'
+    required: true
+  email:
+    description: 'GitHub bot email'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Import GPG key
+      env:
+        GPG_PRIVATE_KEY: ${{ env.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ env.GPG_PASSPHRASE }}
+      run: |
+        echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+        echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
+        echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+        gpgconf --reload gpg-agent
+      shell: bash
+
+    - name: Configure git for GPG signing
+      run: |
+        gpg_key_id=$(gpg --list-secret-keys --keyid-format LONG | grep 'sec' | sed -n 's/.*\/\([^ ]*\).*/\1/p')
+        git config --global user.name "${{ inputs.name }}"
+        git config --global user.email "${{ inputs.email }}"
+        git config --global commit.gpgSign true
+        git config --global user.signingkey $gpg_key_id
+      shell: bash
