@@ -6,7 +6,7 @@
 
 - [x] Automates NuGet package availability checks, ensuring packages exist and are indexed on [nuget.org](https://nuget.org).
 - [x] Supports multiple verification attempts and can suspend CI/CD workflows until the package is published.
-- [x] Simple and fast. Uses pure JavaScript and makes only API call, without using Docker or any dependencies.
+- [x] Simple and fast. Works natively without Dockerfile and no need for dotnet, and other dependencies.
 
 ## How to use
 
