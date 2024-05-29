@@ -35310,6 +35310,7 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
  *         including the action's primary logic and execution flow.
  * @author Nikita (BMTLab) Neverov (neverovnikita.bmt@gmail.com)
  * @license MIT
+ * @copyright BMTLab 2024
  */
 
 // GitHub Actions toolkit for interaction with GitHub Actions.
