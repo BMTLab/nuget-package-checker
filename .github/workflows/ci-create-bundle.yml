@@ -77,18 +77,13 @@ jobs:
         with:
           name: ${{ env.BOT_NAME }}
           email: ${{ env.BOT_EMAIL }}
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Commit updated version
         if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
         env:
-          GPG_TTY: $(tty)
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --detach-sign
-          git commit -m "[${{ env.BOT_NAME }}] Update dist/index.js" -S
+          git commit -m "[${{ env.BOT_NAME }}] Update dist/index.js"
           git push origin HEAD:${{ steps.determine_branch.outputs.branch_name }} --force
 
       - name: Upload artifact

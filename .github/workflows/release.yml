@@ -14,7 +14,6 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       MAIN_BRANCH: tmp
 
     steps:
@@ -28,9 +27,6 @@ jobs:
         with:
           name: ${{ vars.BOT_NAME }}
           email: ${{ vars.BOT_EMAIL }}
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Validate version
         id: validate_version
@@ -61,7 +57,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.TARGET_BRANCH }}
+          ref: ${{ env.MAIN_BRANCH }}
 
       - name: Rebase dev on main
         run: |
@@ -88,6 +84,5 @@ jobs:
       - name: Create Tag
         run: |
           TAG_NAME="v${{ github.event.inputs.version }}"
-          echo "${GPG_PASSPHRASE}" | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --detach-sign --output tag.sig
           git tag -a $TAG_NAME -m "Release $TAG_NAME" --sign --file tag.sig
           git push origin $TAG_NAME
