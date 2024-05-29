@@ -1,6 +1,6 @@
 {
   "name": "nuget-package-check-action",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "GitHub Action automates NuGet package availability checks, ensuring packages exist and are indexed on nuget.org.",
   "author": "neverovnikita.bmt@gmail.com",
   "license": "MIT",
