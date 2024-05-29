@@ -1,0 +1,84 @@
+name: Release On Main Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version for the release, without (v) prefix'
+        required: true
+        default: '2.0.0'
+
+jobs:
+  rebase-and-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Validate version
+        id: validate_version
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          
+          # Check if the version matches the pattern X.Y.Z
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. The version must match the pattern X.Y.Z" >&2
+            exit 101
+          fi
+          
+          # Fetch all tags
+          git fetch --tags
+
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)" || echo "0.0.0")
+          LATEST_TAG=${LATEST_TAG#v}
+          
+          # Compare versions
+          if [[ $(echo -e "$LATEST_TAG\n$VERSION" | sort -V | head -n1) == "$LATEST_TAG" ]]; then
+            echo "The provided version $VERSION is not greater than the latest tag $LATEST_TAG" >&2
+            exit 102
+          fi
+          
+          echo "Version $VERSION is valid and greater than the latest tag $LATEST_TAG"
+        shell: bash
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Rebase dev on main
+        run: |
+          git checkout dev
+          git rebase main
+
+      - name: Push changes to dev
+        run: |
+          git push origin dev --force
+
+      - name: Checkout main branch again
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Merge dev into main with fast-forward
+        run: |
+          git merge --ff-only dev
+
+      - name: Push changes to main
+        run: |
+          git push origin main
+
+      - name: Create Tag
+        run: |
+          TAG_NAME="v${{ github.event.inputs.version }}"
+          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          git push origin $TAG_NAME
