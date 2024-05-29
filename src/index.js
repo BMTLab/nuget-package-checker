@@ -74,7 +74,6 @@ export async function run () {
   }
 }
 
-// Retrieve the current file and directory from the URL of the import.meta.
 const currentFile = fileURLToPath(import.meta.url)
 const currentDir = path.dirname(currentFile)
 
