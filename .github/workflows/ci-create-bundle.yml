@@ -10,6 +10,7 @@ jobs:
     env:
       BOT_NAME: ${{ vars.BOT_NAME }}
       BOT_EMAIL: ${{ vars.BOT_EMAIL }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       # Checkout the repository to access its content.
@@ -77,13 +78,21 @@ jobs:
         with:
           name: ${{ env.BOT_NAME }}
           email: ${{ env.BOT_EMAIL }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
 
       - name: Commit updated version
         if: ${{ steps.check_changes.outputs.changes_exist == 'true' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GIT_COMMITTER_NAME: GitHub Action
+          GIT_COMMITTER_EMAIL: neverovnikita.bmt@gmail.com
+          GIT_AUTHOR_NAME: ${{ env.BOT_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ env.BOT_EMAIL }}
         run: |
           git commit -m "[${{ env.BOT_NAME }}] Update dist/index.js"
+          git verify-commit $( git rev-parse HEAD )
           git push origin HEAD:${{ steps.determine_branch.outputs.branch_name }} --force
 
       - name: Upload artifact

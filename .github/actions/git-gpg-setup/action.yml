@@ -12,8 +12,27 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure git for GitHub Actions Bot
+    - name: Import GPG key
+      env:
+        GPG_PRIVATE_KEY: ${{ env.GPG_PRIVATE_KEY }}
       run: |
-        git config --global user.name "${{ inputs.name }}"
-        git config --global user.email "${{ inputs.email }}"
+        echo "$GPG_PRIVATE_KEY" | base64 --decode | gpg --batch --import
       shell: bash
+
+    - name: Add the custom signing program that passes the passphrase to the GPG CLI
+      run: |
+        rm -rf /tmp/gpg.sh
+        echo '#!/bin/bash' >> /tmp/gpg.sh
+        echo 'gpg --batch --pinentry-mode=loopback --passphrase $GPG_PASSPHRASE $@' >> /tmp/gpg.sh
+        chmod +x /tmp/gpg.sh
+      shell: bash
+
+    - name: Setup git
+      env:
+        GPG_KEY_ID: ${{ env.GPG_KEY_ID }}
+      run: |
+        git config commit.gpgsign true
+        git config user.signingkey $GPG_KEY_ID
+        git config gpg.program /tmp/gpg.sh
+      shell: bash
+
