@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      BOT_NAME: ${{ vars.BOT_NAME }}
+      BOT_EMAIL: ${{ vars.BOT_EMAIL }}
       GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
       MAIN_BRANCH: tmp
 
@@ -25,8 +27,8 @@ jobs:
       - name: Setup GPG for signing
         uses: ./.github/actions/git-gpg-setup
         with:
-          name: ${{ vars.BOT_NAME }}
-          email: ${{ vars.BOT_EMAIL }}
+          name: ${{ env.BOT_NAME }}
+          email: ${{ env.BOT_EMAIL }}
 
       - name: Validate version
         id: validate_version
@@ -82,6 +84,12 @@ jobs:
           git push origin ${{ env.MAIN_BRANCH }}
 
       - name: Create Tag
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GIT_COMMITTER_NAME: ${{ github.actor }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.GIT_COMMITTER_EMAIL }}
+          GIT_AUTHOR_NAME: ${{ env.BOT_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ env.BOT_EMAIL }}
         run: |
           TAG_NAME="v${{ github.event.inputs.version }}"
           git tag -a $TAG_NAME -m "Release $TAG_NAME" --sign --file tag.sig
