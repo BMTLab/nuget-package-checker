@@ -19,6 +19,10 @@ describe('Sleep Utility', () => {
   it('pauses execution for a specified duration', async () => {
     /// Assert
     const ms = 500
+
+    // The delay value could be, for example, 499.99 or 500.990 or even 505ms.
+    // But it is enough for us that the delay will be approximately equal to 500ms.
+    const tolerance = 10
     const spy = vi.fn()
 
     /// Act
@@ -28,7 +32,8 @@ describe('Sleep Utility', () => {
 
     /// Assert
     expect(spy).toHaveBeenCalled()
-    expect(end - start).toBeGreaterThanOrEqual(ms)
+    expect(end - start).toBeGreaterThan(ms - tolerance)
+    expect(end - start).toBeLessThan(ms + tolerance)
   })
 })
 
