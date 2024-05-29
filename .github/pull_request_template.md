@@ -2,19 +2,9 @@
 Please provide a clear and concise description of what the pull request does. Include the issue number if this pull request is related to an existing issue.
 
 ## Changes Made
-List your changes in detail here:
 - ..
 - ..
 - ..
-
-## How to Test
-Please describe the tests that you ran to verify your changes. 
-Provide instructions, so we can reproduce. 
-Please also list any relevant details for your test configuration.
-
-1. Step-by-step detail
-2. Any specific settings or environment this needs
-3. Expected outcomes
 
 ## Additional Information
 Add any other context about the pull request here.
