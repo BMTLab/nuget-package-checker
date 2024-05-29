@@ -48,7 +48,6 @@ jobs:
           fi
           
           echo "Version $VERSION is valid and greater than the latest tag $LATEST_TAG"
-        shell: bash
 
       - name: Checkout main branch
         uses: actions/checkout@v4
